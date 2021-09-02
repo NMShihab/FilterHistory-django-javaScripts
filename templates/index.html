@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- CSS only -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We"
+      crossorigin="anonymous"
+    />
+    <!-- JavaScript Bundle with Popper -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+      crossorigin="anonymous"
+    ></script>
+    <title>Home</title>
+  </head>
+  <body>
+    <div class="container p-5">
+      <div class="row">
+        <div class="col-sm">
+          <h3>All Users</h3>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              value="A"
+              id="user"
+            />
+            <label class="form-check-label" for="flexCheckDefault"> A </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              value="B"
+              id="user"
+            />
+            <label class="form-check-label" for="flexCheckChecked"> B </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              value="C"
+              id="user"
+            />
+            <label class="form-check-label" for="flexCheckChecked"> C </label>
+          </div>
+
+          <div class="py-3">
+            <h3>All Keywords</h3>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value="football"
+                id="keyword"
+              />
+              <label class="form-check-label" for="flexCheckDefault">
+                football
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value="cricket"
+                id="keyword"
+              />
+              <label class="form-check-label" for="flexCheckChecked">
+                cricket
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value="tennis"
+                id="keyword"
+              />
+              <label class="form-check-label" for="flexCheckChecked">
+                tennis
+              </label>
+            </div>
+          </div>
+
+          <div class="py-3">
+            <h3>Time range data</h3>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value="yesterday"
+                id="yesterday"
+              />
+              <label class="form-check-label" for="flexCheckDefault">
+                yesterday
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value="lastWeek"
+                id="lastWeek"
+              />
+              <label class="form-check-label" for="flexCheckChecked">
+                lastWeek
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value="lastmonth"
+                id="lastmonth"
+              />
+              <label class="form-check-label" for="flexCheckChecked">
+                lastmonth
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-8">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">User</th>
+                <th scope="col">Keyword</th>
+                <th scope="col">Date</th>
+              </tr>
+            </thead>
+            <tbody id="data"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  // Get data from backend
+  let data = JSON.parse("{{data|escapejs}}");
+  // Make searchedDate fiels into Date format
+  data = data.map((d) => {
+    d.fields.searchedDate = new Date(d.fields.searchedDate);
+    return d;
+  });
+
+  //create a varriable
+  let useData = data;
+  // select all checkboxe
+  const checkboxes = document.querySelectorAll(".form-check-input");
+
+  // console.log(data);
+
+  // Create necessary variable
+  let filterdata = [];
+  let filteredArray = [];
+  let da = [];
+
+  let Isyesterday = false;
+  let Islastmonth = false;
+  let Islastweek = false;
+
+  let user1 = document.getElementById("A");
+  let keyWord1 = document.getElementById("football");
+  let keyUser = [];
+  let keywordKey = [];
+
+  // Function for show data in the element
+  const showData = (pData) => {
+    document.getElementById("data").innerHTML = `${pData.map(
+      (data) =>
+        `<tr>
+            <td>${data.fields.user}</td>
+            <td>${data.fields.keyWord}</td>
+            <td>${data.fields.searchedDate}</td>
+        </tr>`
+    )}`;
+  };
+
+  // Function for clik check boxes
+  const addUserHistory = (checkbox) => {
+    checkbox.addEventListener("change", function (e) {
+      // prevent reload
+      e.preventDefault();
+
+      filterdata = [];
+
+      // Check uncheck start
+      if (checkbox.checked) {
+        // All funtionality if the checkbox is checked
+        let cValue = checkbox.id;
+
+        if (cValue === "user") {
+          keyUser.push(checkbox.defaultValue);
+        } else if (cValue === "keyword") {
+          keywordKey.push(checkbox.defaultValue);
+        }
+
+        if (cValue === "lastmonth") {
+          Islastmonth = true;
+        } else if (cValue === "lastWeek") {
+          Islastweek = true;
+        } else if (cValue === "yesterday") {
+          Isyesterday = true;
+        }
+      } else {
+        // all functionality if the checkbox is unchecked
+        if (checkbox.id === "user") {
+          keyUser = keyUser.filter((f) => f != checkbox.defaultValue);
+        } else if (checkbox.id === "keyword") {
+          keywordKey = keywordKey.filter((f) => f != checkbox.defaultValue);
+        }
+
+        if (checkbox.id === "yesterday") {
+          Isyesterday = false;
+          useData = data;
+        }
+        if (checkbox.id === "lastWeek") {
+          Islastweek = false;
+          useData = data;
+        }
+        if (checkbox.id === "lastmonth") {
+          Islastmonth = false;
+          useData = data;
+        }
+      }
+      // Check unchek ends
+
+      // Check month year yesterday start
+
+      // Functionality for time range
+      if (Islastmonth) {
+        const today = new Date();
+        useData = data;
+        let lastMonthDate = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() - 30
+        );
+        console.log(lastMonthDate);
+        useData = useData.filter((d) => {
+          let date = d.fields.searchedDate;
+          return date.getTime() >= lastMonthDate.getTime();
+        });
+      }
+      if (Islastweek && !Islastmonth) {
+        const today = new Date();
+        useData = data;
+        let lastWeekDate = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() - 7
+        );
+
+        useData = useData.filter((d) => {
+          let date = d.fields.searchedDate;
+          return lastWeekDate.getTime() < date.getTime();
+        });
+
+        console.log(useData);
+      }
+      if (Isyesterday && !Islastmonth && !Islastweek) {
+        const today = new Date();
+        useData = data;
+        console.log(today.getDate());
+        useData = useData.filter((d) => {
+          let date = d.fields.searchedDate;
+          return (
+            date.getFullYear() === today.getFullYear() &&
+            date.getMonth() === today.getMonth() &&
+            date.getDate() === today.getDate() - 1
+          );
+        });
+
+        console.log(useData);
+      }
+
+      // Check month year yesterday ends
+
+      // Funtionality for keyword and user filter
+      if (keyUser.length > 0 && keywordKey.length > 0) {
+        filterdata = [];
+        filteredArray = [];
+        let datauser = [];
+        let dataWord = [];
+        for (let i = 0; i < keywordKey.length; i++) {
+          da = useData.filter((d) => d.fields.keyWord === keywordKey[i]);
+          datauser.push(...da);
+        }
+        for (let i = 0; i < keyUser.length; i++) {
+          da = useData.filter((d) => d.fields.user === keyUser[i]);
+          dataWord.push(...da);
+        }
+
+        filteredArray = datauser.filter((value) => dataWord.includes(value));
+        // Inspect value
+        // console.log(filteredArray);
+      } else if (keyUser.length > 0) {
+        filteredArray = [];
+        for (let i = 0; i < keyUser.length; i++) {
+          da = useData.filter((d) => d.fields.user === keyUser[i]);
+          filterdata.push(...da);
+        }
+      } else {
+        // console.log("Worked");
+        filteredArray = [];
+        for (let i = 0; i < keywordKey.length; i++) {
+          da = useData.filter((d) => d.fields.keyWord === keywordKey[i]);
+          filterdata.push(...da);
+        }
+      }
+
+      // Inspect Data flow
+      // console.log("Data : ", filterdata, filteredArray, useData);
+
+      // Show Data according to filter logic
+
+      if (
+        filterdata.length === 0 &&
+        filteredArray.length === 0 &&
+        useData.length != 0 &&
+        keyUser.length == 0 &&
+        keywordKey.length == 0
+      ) {
+        if (Islastmonth) {
+          showData(useData);
+        } else if (Islastweek) {
+          showData(useData);
+        } else if (Isyesterday) {
+          showData(useData);
+        }
+      }
+      if (filteredArray.length > 0) {
+        showData(filteredArray);
+      }
+      if (filterdata.length > 0) {
+        showData(filterdata);
+      }
+      if (filterdata.length === 0 && filteredArray.length === 0) {
+        document.getElementById("data").innerHTML = "No Data";
+      }
+
+      // Inspect keyword flow
+      // console.log("UserKey", keyUser);
+      // console.log("WordKey ", keywordKey);
+    });
+  };
+
+  // call the function
+  checkboxes.forEach(addUserHistory);
+</script>
