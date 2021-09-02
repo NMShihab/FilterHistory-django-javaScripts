@@ -247,6 +247,16 @@
           let date = d.fields.searchedDate;
           return date.getTime() >= lastMonthDate.getTime();
         });
+        console.log(useData);
+        // showData(useData);
+        document.getElementById("data").innerHTML = `${useData.map(
+          (data) =>
+            `<tr>
+            <td>${data.fields.user}</td>
+            <td>${data.fields.keyWord}</td>
+            <td>${data.fields.searchedDate}</td>
+        </tr>`
+        )}`;
       }
       if (Islastweek && !Islastmonth) {
         const today = new Date();
@@ -263,6 +273,7 @@
         });
 
         console.log(useData);
+        showData(useData);
       }
       if (Isyesterday && !Islastmonth && !Islastweek) {
         const today = new Date();
@@ -341,7 +352,13 @@
       if (filterdata.length > 0) {
         showData(filterdata);
       }
-      if (filterdata.length === 0 && filteredArray.length === 0) {
+      if (
+        filterdata.length === 0 &&
+        filteredArray.length === 0 &&
+        !Islastmonth &&
+        !Islastweek &&
+        !Isyesterday
+      ) {
         document.getElementById("data").innerHTML = "No Data";
       }
 
